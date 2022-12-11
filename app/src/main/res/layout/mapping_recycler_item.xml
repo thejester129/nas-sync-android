@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/teal_200"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/mapping_recycler_item_source"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="12dp"
+            android:textSize="18dp"
+        />
+
+        <TextView
+            android:id="@+id/mapping_recycler_item_destination_ip"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="12dp"
+            android:textSize="18dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+        />
+
+        <TextView
+            android:id="@+id/mapping_recycler_item_last_sync"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="12dp"
+            android:textSize="18dp"
+        />
+
+</LinearLayout>

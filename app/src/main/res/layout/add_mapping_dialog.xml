@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/add_dialog_phone_folder"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="50dp"
+        android:text="..."
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Choose"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_alignTop="@id/add_dialog_phone_folder"
+        />
+    <EditText
+        android:id="@+id/add_dialog_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/add_dialog_phone_folder"
+        android:hint="Server IP Address"
+        />
+
+    <EditText
+        android:id="@+id/add_dialog_share"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_dialog_ip"
+        android:layout_marginTop="10dp"
+        android:hint="Server Share"
+    />
+
+    <EditText
+        android:id="@+id/add_dialog_folder_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_dialog_share"
+        android:layout_marginTop="10dp"
+        android:hint="Server Folder Path"
+    />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/add_dialog_dismiss_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="DISMISS"
+            />
+        <Button
+            android:id="@+id/add_dialog_save_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SAVE"
+            />
+    </LinearLayout>
+</RelativeLayout>
