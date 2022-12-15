@@ -9,7 +9,7 @@ interface MappingDAO {
     @Query("SELECT * FROM mapping")
     fun getAll(): LiveData<List<Mapping>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(mapping: Mapping)
 
     @Delete

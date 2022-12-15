@@ -3,6 +3,7 @@ package com.example.android_nas_sync.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import com.example.android_nas_sync.common.MappingDatabase
@@ -20,7 +21,8 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
 
     val mappings: LiveData<List<Mapping>> = mappingDao.getAll()
 
-    var currentlyEditedMapping:Mapping? = null;
+    var currentlyEditedMapping:MutableLiveData<Mapping> = MutableLiveData()
+    var canDeleteCurrentlyEdited = false
 
     fun addMapping(mapping: Mapping){
         viewModelScope.launch {
@@ -28,21 +30,23 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun updateMapping(mapping:Mapping){
+    fun updateCurrentEdited() {
         viewModelScope.launch {
-            mappingDao.update(mapping)
+            val mapping = currentlyEditedMapping.value
+            if (mapping != null) {
+                mappingDao.insert(mapping)
+            }
         }
     }
 
-    fun deleteMapping(mapping:Mapping){
+    fun deleteCurrentlyEdited(){
         viewModelScope.launch {
-            mappingDao.delete(mapping)
+            val mapping = currentlyEditedMapping!!.value
+            if(mapping != null){
+                mappingDao.delete(mapping)
+            }
         }
     }
     init {
-//        if(mappingDao.getAll().value == null){
-//            addMapping(Mapping(1, ShareType.SMB, "phone/test", "192.168.0.45",
-//                "backup", "phone_pixel/camera", 123.toDouble()))
-//        }
     }
 }

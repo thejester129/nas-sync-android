@@ -53,8 +53,10 @@ class HomeFragment : Fragment() {
     private fun initAddButton(view: View) {
         val addButton = view.findViewById<View>(R.id.mapping_add_button)
         addButton.setOnClickListener { v ->
+            viewModel.currentlyEditedMapping.value = Mapping("", "", "", "")
+            viewModel.canDeleteCurrentlyEdited = false
             val navController = findNavController()
-            navController.navigate(R.id.AddMappingDialog)
+            navController.navigate(R.id.MappingDialog)
         }
     }
 
@@ -65,9 +67,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun onRecyclerItemClick(mapping: Mapping):Unit{
-        viewModel.currentlyEditedMapping = mapping
+        viewModel.currentlyEditedMapping.value = Mapping(mapping)
+        viewModel.canDeleteCurrentlyEdited = true
         val navController = findNavController()
-        navController.navigate(R.id.EditMappingDialog)
+        navController.navigate(R.id.MappingDialog)
     }
 
     override fun onDestroyView() {

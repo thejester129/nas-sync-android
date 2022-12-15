@@ -46,7 +46,7 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
         viewHolder.destination.text = destinationText
 
         val lastSyncTime =  if (mapping.lastSynced == null)  "never"
-                            else TimeUtils.unixTimestampToHoursAndMins(mapping.lastSynced)
+                            else TimeUtils.unixTimestampToHoursAndMins(mapping.lastSynced!!)
         val lastSyncText = "Last synced: $lastSyncTime"
         viewHolder.lastSynced.text = lastSyncText
     }
