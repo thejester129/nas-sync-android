@@ -5,11 +5,11 @@ class TimeUtils {
         fun unixTimestampToFormatted(timestamp:Double){
         }
 
-        fun unixTimestampToHoursAndMins(timestamp:Double):String{
+        fun unixTimestampToHoursAndMins(timestamp:Long):String{
             return "1 hours 15 mins"
         }
-        fun unixTimestampNow():Double{
-            return 12345.toDouble()
+        fun unixTimestampNow():Long{
+            return System.currentTimeMillis() / 1000
         }
     }
 }

@@ -29,6 +29,11 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
             mappingDao.insert(mapping)
         }
     }
+    fun updateMapping(mapping: Mapping) {
+        viewModelScope.launch {
+            mappingDao.update(mapping)
+        }
+    }
 
     fun updateCurrentEdited() {
         viewModelScope.launch {

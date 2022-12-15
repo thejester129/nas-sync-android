@@ -57,6 +57,24 @@
         android:hint="Server Folder Path"
         android:text="@={viewModel.currentlyEditedMapping.destinationPath}"
     />
+    <EditText
+    android:id="@+id/mapping_dialog_username"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/add_dialog_folder_path"
+    android:layout_marginTop="10dp"
+    android:hint="Server Username"
+    android:text="@={viewModel.currentlyEditedMapping.username}"
+    />
+    <EditText
+        android:id="@+id/mapping_dialog_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mapping_dialog_username"
+        android:layout_marginTop="10dp"
+        android:hint="Server Password (Blank if none)"
+        android:text="@={viewModel.currentlyEditedMapping.password}"
+    />
     <Button
         android:id="@+id/mapping_dialog_delete_button"
         android:layout_width="match_parent"

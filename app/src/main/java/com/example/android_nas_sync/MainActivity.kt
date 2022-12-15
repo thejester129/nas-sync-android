@@ -11,9 +11,12 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.fragment.app.activityViewModels
 import com.example.android_nas_sync.R
+import com.example.android_nas_sync.common.FileScanner
+import com.example.android_nas_sync.common.TimeUtils
 import com.example.android_nas_sync.databinding.ActivityMainBinding
 import com.example.android_nas_sync.viewmodels.MappingsViewModel
 
@@ -48,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == FOLDER_PICK_ACTIVITY_CODE
             && resultData?.data != null) {
             resultData.data?.also { uri ->
-                var mapping = viewModel.currentlyEditedMapping.value
+                val mapping = viewModel.currentlyEditedMapping.value
                 mapping?.sourceFolder = uri.toString()
                 viewModel.currentlyEditedMapping.value = mapping
             }
@@ -61,9 +64,26 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-//            R.id.action_settings -> true
+            R.id.action_refresh -> handleRefresh()
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun handleRefresh():Boolean{
+        val mappings = viewModel.mappings.value
+        mappings?.forEach { mapping ->
+            val result = FileScanner.refreshMapping(mapping)
+            if(result.success){
+                mapping.lastSynced = TimeUtils.unixTimestampNow()
+                viewModel.updateMapping(mapping)
+            }
+            else{
+                // TODO show error against item
+                Toast.makeText(this, "Error: ${result.errorMessage}"
+                        , Toast.LENGTH_LONG).show()
+            }
+        }
+        return true
     }
 
     override fun onSupportNavigateUp(): Boolean {
