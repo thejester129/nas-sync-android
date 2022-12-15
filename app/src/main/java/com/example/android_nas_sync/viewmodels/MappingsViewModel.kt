@@ -6,9 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
-import com.example.android_nas_sync.common.MappingDatabase
+import com.example.android_nas_sync.db.MappingDatabase
 import com.example.android_nas_sync.models.Mapping
-import com.example.android_nas_sync.models.ShareType
 import kotlinx.coroutines.launch
 
 class MappingsViewModel(application: Application) : AndroidViewModel(application) {

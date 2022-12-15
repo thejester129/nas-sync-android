@@ -1,5 +1,6 @@
 package com.example.android_nas_sync.common;
 import com.example.android_nas_sync.models.Mapping;
+import com.example.android_nas_sync.models.ScanResult;
 import com.hierynomus.msdtyp.AccessMask;
 import com.hierynomus.msfscc.FileAttributes;
 import com.hierynomus.mssmb2.SMB2CreateDisposition;
@@ -10,7 +11,7 @@ import com.hierynomus.smbj.auth.AuthenticationContext;
 import com.hierynomus.smbj.connection.Connection;
 import com.hierynomus.smbj.session.Session;
 import com.hierynomus.smbj.share.DiskShare;
-import com.hierynomus.smbj.share.Share;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package com.example.android_nas_sync.common
+package com.example.android_nas_sync.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

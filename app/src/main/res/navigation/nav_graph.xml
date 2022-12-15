@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/HomeFragment"
-        android:name="com.example.android_nas_sync.HomeFragment"
+        android:name="com.example.android_nas_sync.views.HomeFragment"
         android:label="NAS Sync"
         tools:layout="@layout/fragment_home">
         >

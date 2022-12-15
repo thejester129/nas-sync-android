@@ -1,10 +1,11 @@
-package com.example.android_nas_sync
+package com.example.android_nas_sync.views
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.android_nas_sync.R
 import com.example.android_nas_sync.common.TimeUtils
 import com.example.android_nas_sync.models.Mapping
 
@@ -22,14 +23,14 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MappingRecyclerAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.mapping_recycler_item, parent, false)
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(viewHolder: MappingRecyclerAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val mapping: Mapping = mappings[position]
 
         viewHolder.itemView.setOnClickListener {
