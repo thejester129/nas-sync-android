@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -22,8 +23,12 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: MappingsViewModel by viewModels()
-    private var mappingAdapter:MappingRecyclerAdapter = MappingRecyclerAdapter(listOf())
+    private val viewModel: MappingsViewModel by activityViewModels()
+    private var mappingAdapter:MappingRecyclerAdapter = MappingRecyclerAdapter(listOf()) { mapping ->
+        onRecyclerItemClick(
+            mapping
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,8 +46,6 @@ class HomeFragment : Fragment() {
 
     private fun initRecycler(view:View){
         val mappingRecycler = view.findViewById<View>(R.id.mapping_recycler) as RecyclerView
-        val mappings = listOf(Mapping(1, ShareType.SMB, "phone/test", "192.168.0.45",
-            "backup", "phone_pixel/camera"))
         mappingRecycler.layoutManager = LinearLayoutManager(view.context);
         mappingRecycler.adapter = mappingAdapter
     }
@@ -60,6 +63,13 @@ class HomeFragment : Fragment() {
             mappingAdapter.updateMappings(mappings)
         }
     }
+
+    private fun onRecyclerItemClick(mapping: Mapping):Unit{
+        viewModel.currentlyEditedMapping = mapping
+        val navController = findNavController()
+        navController.navigate(R.id.EditMappingDialog)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -5,17 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.android_nas_sync.R
-import com.example.android_nas_sync.databinding.MappingDialogBinding
 import com.example.android_nas_sync.databinding.FragmentHomeBinding
+import com.example.android_nas_sync.databinding.MappingDialogBinding
 import com.example.android_nas_sync.models.Mapping
 import com.example.android_nas_sync.viewmodels.MappingsViewModel
 
-class AddMappingDialog : Fragment() {
+class EditMappingDialog : Fragment() {
     private var _binding: MappingDialogBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MappingsViewModel by activityViewModels()
@@ -31,16 +32,26 @@ class AddMappingDialog : Fragment() {
     }
 
     private fun initBindings(view: View){
+        val mapping = viewModel.currentlyEditedMapping!!
+        val ipAddress = view.findViewById<EditText>(R.id.add_dialog_ip)
+        val share = view.findViewById<EditText>(R.id.add_dialog_share)
+        val folderPath = view.findViewById<EditText>(R.id.add_dialog_folder_path)
         val saveButton = view.findViewById<View>(R.id.add_dialog_save_button)
+
+        ipAddress.setText(mapping.serverIp, TextView.BufferType.EDITABLE)
+        share.setText(mapping.destinationShare, TextView.BufferType.EDITABLE)
+        folderPath.setText(mapping.destinationPath, TextView.BufferType.EDITABLE)
+
         saveButton.setOnClickListener{
             run {
-                val ipAddress = view.findViewById<EditText>(R.id.add_dialog_ip).text.toString()
-                val share = view.findViewById<EditText>(R.id.add_dialog_share).text.toString()
-                val folderPath = view.findViewById<EditText>(R.id.add_dialog_folder_path).text.toString()
-                viewModel.addMapping(Mapping("", ipAddress, share, folderPath))
+                val newMapping = Mapping("", ipAddress.text.toString(),
+                    share.text.toString(), folderPath.text.toString())
+                newMapping.id = mapping.id
+                viewModel.updateMapping(newMapping)
                 findNavController().navigate(R.id.HomeFragment)
             }
         }
+
         val dismissButton = view.findViewById<View>(R.id.add_dialog_dismiss_button)
         dismissButton.setOnClickListener {
             run {
@@ -48,7 +59,11 @@ class AddMappingDialog : Fragment() {
             }
         }
 
+
         val deleteButton = view.findViewById<View>(R.id.mapping_dialog_delete_button);
-        deleteButton.visibility = View.GONE
+        deleteButton.setOnClickListener { run{
+            viewModel.deleteMapping(mapping)
+            findNavController().navigate(R.id.HomeFragment)
+        } }
     }
 }

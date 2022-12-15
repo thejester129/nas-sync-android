@@ -19,10 +19,17 @@
         android:id="@+id/AddMappingDialog"
         android:name="com.example.android_nas_sync.views.AddMappingDialog"
         android:label="Add Folder Mapping"
-        tools:layout="@layout/add_mapping_dialog">
+        tools:layout="@layout/mapping_dialog">
 
         <action
             android:id="@+id/action_Add_Mapping_To_Home"
             app:destination="@id/HomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/EditMappingDialog"
+        android:name="com.example.android_nas_sync.views.EditMappingDialog"
+        android:label="Edit Folder Mapping"
+        tools:layout="@layout/mapping_dialog">
+
     </fragment>
 </navigation>

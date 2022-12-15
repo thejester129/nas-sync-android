@@ -20,15 +20,29 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
 
     val mappings: LiveData<List<Mapping>> = mappingDao.getAll()
 
+    var currentlyEditedMapping:Mapping? = null;
+
     fun addMapping(mapping: Mapping){
         viewModelScope.launch {
             mappingDao.insert(mapping)
         }
     }
-    init {
-        if(mappingDao.getAll().value == null){
-            addMapping(Mapping(1, ShareType.SMB, "phone/test", "192.168.0.45",
-                "backup", "phone_pixel/camera", 123.toDouble()))
+
+    fun updateMapping(mapping:Mapping){
+        viewModelScope.launch {
+            mappingDao.update(mapping)
         }
+    }
+
+    fun deleteMapping(mapping:Mapping){
+        viewModelScope.launch {
+            mappingDao.delete(mapping)
+        }
+    }
+    init {
+//        if(mappingDao.getAll().value == null){
+//            addMapping(Mapping(1, ShareType.SMB, "phone/test", "192.168.0.45",
+//                "backup", "phone_pixel/camera", 123.toDouble()))
+//        }
     }
 }

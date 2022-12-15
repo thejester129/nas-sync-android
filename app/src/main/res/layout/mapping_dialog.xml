@@ -45,8 +45,16 @@
         android:layout_marginTop="10dp"
         android:hint="Server Folder Path"
     />
-
+    <Button
+        android:id="@+id/mapping_dialog_delete_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/mapping_dialog_bottom_buttons"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:text="DELETE"
+    />
     <LinearLayout
+        android:id="@+id/mapping_dialog_bottom_buttons"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content">

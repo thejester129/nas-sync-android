@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.android_nas_sync.common.TimeUtils
 import com.example.android_nas_sync.models.Mapping
 
-class MappingRecyclerAdapter( private var mappings:List<Mapping>) : RecyclerView.Adapter<MappingRecyclerAdapter.ViewHolder>() {
+class MappingRecyclerAdapter( private var mappings:List<Mapping>,
+                              private var onClick: (Mapping) -> Unit) : RecyclerView.Adapter<MappingRecyclerAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val source = itemView.findViewById<TextView>(R.id.mapping_recycler_item_source)!!
@@ -24,12 +25,19 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>) : RecyclerView
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MappingRecyclerAdapter.ViewHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
-        val contactView = inflater.inflate(R.layout.mapping_recycler_item, parent, false)
-        return ViewHolder(contactView)
+        val view = inflater.inflate(R.layout.mapping_recycler_item, parent, false)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(viewHolder: MappingRecyclerAdapter.ViewHolder, position: Int) {
         val mapping: Mapping = mappings[position]
+
+        viewHolder.itemView.setOnClickListener {
+            run {
+                onClick(mapping)
+            }
+        }
+
         val sourceText = "Source: " + mapping.sourceFolder
         viewHolder.source.text = sourceText
 
