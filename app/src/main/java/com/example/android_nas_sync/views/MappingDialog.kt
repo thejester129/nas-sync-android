@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -13,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.android_nas_sync.R
 import com.example.android_nas_sync.databinding.MappingDialogBinding
+import com.example.android_nas_sync.models.Mapping
 import com.example.android_nas_sync.viewmodels.MappingsViewModel
 
 class MappingDialog : Fragment() {
@@ -39,8 +41,13 @@ class MappingDialog : Fragment() {
         val saveButton = view.findViewById<View>(R.id.add_dialog_save_button)
         saveButton.setOnClickListener{
             run {
-                viewModel.updateCurrentEdited()
-                findNavController().navigate(R.id.HomeFragment)
+                if(correctFields(viewModel.currentlyEditedMapping.value)){
+                    viewModel.updateCurrentEdited()
+                    findNavController().navigate(R.id.HomeFragment)
+                }
+               else{
+                    Toast.makeText(activity, "Missing fields in mapping", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -73,6 +80,13 @@ class MappingDialog : Fragment() {
         }
     }
 
+    private fun correctFields(mapping: Mapping?):Boolean{
+        return mapping != null &&
+                !mapping.destinationPath.isNullOrEmpty() &&
+                !mapping.destinationShare.isNullOrEmpty() &&
+                !mapping.serverIp.isNullOrEmpty() &&
+                !mapping.sourceFolder.isNullOrEmpty()
+    }
     private fun openDirectory() {
         // Choose a directory using the system's file picker.
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
