@@ -1,18 +1,21 @@
 package com.example.android_nas_sync
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import com.example.android_nas_sync.common.FileScanner
+import com.example.android_nas_sync.common.DeviceFileReader
 import com.example.android_nas_sync.common.TimeUtils
 import com.example.android_nas_sync.databinding.ActivityMainBinding
 import com.example.android_nas_sync.models.Mapping
@@ -39,6 +42,11 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 0)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -52,11 +60,14 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == FOLDER_PICK_ACTIVITY_CODE
             && resultData?.data != null) {
             resultData.data?.also { uri ->
-
-
                 val mapping = viewModel.currentlyEditedMapping.value
                 mapping?.sourceFolder = uri.toString()
                 viewModel.currentlyEditedMapping.value = mapping
+                // Persist uri read permission
+                val contentResolver = applicationContext.contentResolver
+                val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(uri, takeFlags)
             }
         }
         super.onActivityResult(requestCode, resultCode, resultData)
@@ -73,28 +84,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleRefresh():Boolean{
-        val mappings = viewModel.mappings.value
-        mappings?.forEach { mapping ->
-            this.lifecycleScope.launch(Dispatchers.IO){
-                refreshMapping(mapping)
-            }
-        }
+        Toast.makeText(this, "Rescanning all mappings", Toast.LENGTH_SHORT).show()
+        viewModel.syncAllMappings()
         return true
     }
 
-    private suspend fun refreshMapping(mapping: Mapping){
-        val result = FileScanner.refreshMapping(mapping, this)
-        if(result.success){
-            mapping.lastSynced = TimeUtils.unixTimestampNowSecs()
-            mapping.error = null
-            viewModel.updateMapping(mapping)
-        }
-        else{
-            mapping.error = result.errorMessage
-            viewModel.updateMapping(mapping)
-            Toast.makeText(this, "Error syncing", Toast.LENGTH_LONG).show()
-        }
-    }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)

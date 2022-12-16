@@ -15,6 +15,7 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val source = itemView.findViewById<TextView>(R.id.mapping_recycler_item_source)!!
         val destination = itemView.findViewById<TextView>(R.id.mapping_recycler_item_destination_ip)!!
+        val filesSynced = itemView.findViewById<TextView>(R.id.mapping_recycler_item_files_synced)!!
         val infoMessage = itemView.findViewById<TextView>(R.id.mapping_recycler_item_last_sync)!!
     }
 
@@ -45,6 +46,9 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
         val destinationText = "Destination: " + mapping.serverIp + "/" +
                 mapping.destinationShare + "/" + mapping.destinationPath
         viewHolder.destination.text = destinationText
+
+        val filesSyncedText = "${mapping.filesSynced} files synced"
+        viewHolder.filesSynced.text = filesSyncedText
 
         val lastSyncTime =  if (mapping.lastSynced == null)  "never"
                             else TimeUtils.unixTimestampToHoursAndMins(mapping.lastSynced!!) + " ago"

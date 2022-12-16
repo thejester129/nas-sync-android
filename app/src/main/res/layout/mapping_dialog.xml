@@ -93,6 +93,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:backgroundTint="@color/purple_200"
             android:text="DISMISS"
             />
         <Space
@@ -104,6 +105,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:backgroundTint="@color/teal_200"
             android:text="SAVE"
             />
     </LinearLayout>
