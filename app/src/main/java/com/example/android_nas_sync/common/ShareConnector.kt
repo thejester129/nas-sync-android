@@ -7,8 +7,9 @@ import com.hierynomus.smbj.connection.Connection
 import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
 
-class ShareConnector {
-    companion object{
+class ShareConnector() {
+        private val client:SMBClient? = null
+
         fun connectToSmbShare(ipAddress:String,shareName:String, username:String, password:String):DiskShare{
             val client = SMBClient()
 
@@ -40,5 +41,7 @@ class ShareConnector {
 
             return share
         }
+    fun closeConnection(){
+        client?.close()
     }
 }

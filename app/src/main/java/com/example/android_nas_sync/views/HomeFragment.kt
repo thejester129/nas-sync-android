@@ -5,7 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +15,9 @@ import com.example.android_nas_sync.R
 import com.example.android_nas_sync.databinding.FragmentHomeBinding
 import com.example.android_nas_sync.models.Mapping
 import com.example.android_nas_sync.viewmodels.MappingsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment() {
@@ -59,6 +64,18 @@ class HomeFragment : Fragment() {
     private fun initObservers(){
         viewModel.mappings.observe(viewLifecycleOwner) { mappings ->
             mappingAdapter.updateMappings(mappings)
+        }
+        viewModel.unseenToastMessages.observe(viewLifecycleOwner){messages ->
+            messages.forEach { message ->
+                lifecycleScope.launch(Dispatchers.Main){
+                    Toast.makeText(
+                        requireActivity().applicationContext,
+                        message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+            viewModel.unseenToastMessages.value = mutableListOf()
         }
     }
 

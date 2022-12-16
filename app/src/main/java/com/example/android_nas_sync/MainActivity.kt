@@ -84,7 +84,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleRefresh():Boolean{
-        Toast.makeText(this, "Rescanning all mappings", Toast.LENGTH_SHORT).show()
         viewModel.syncAllMappings()
         return true
     }

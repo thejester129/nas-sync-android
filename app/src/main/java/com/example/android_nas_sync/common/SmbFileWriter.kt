@@ -12,8 +12,8 @@ import java.nio.file.Files
 import java.util.HashSet
 
 class SmbFileWriter(private val diskShare: DiskShare) {
-    fun fileExistsInShare(path:String):Boolean{
-        return diskShare.fileExists(path)
+    fun fileExistsInShare(folder:String,  name:String):Boolean{
+        return diskShare.fileExists("$folder/$name")
     }
 
     @Throws(IOException::class)
