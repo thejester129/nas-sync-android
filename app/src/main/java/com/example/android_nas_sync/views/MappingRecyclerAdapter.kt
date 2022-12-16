@@ -47,7 +47,7 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
         viewHolder.destination.text = destinationText
 
         val lastSyncTime =  if (mapping.lastSynced == null)  "never"
-                            else TimeUtils.unixTimestampToHoursAndMins(mapping.lastSynced!!)
+                            else TimeUtils.unixTimestampToHoursAndMins(mapping.lastSynced!!) + " ago"
         val lastSyncText = "Last synced: $lastSyncTime"
         if(mapping.error != null){
             viewHolder.infoMessage.text = "Error: " + mapping.error
