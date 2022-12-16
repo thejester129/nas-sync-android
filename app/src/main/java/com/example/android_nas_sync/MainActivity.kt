@@ -1,24 +1,25 @@
 package com.example.android_nas_sync
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.fragment.app.activityViewModels
-import com.example.android_nas_sync.R
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.android_nas_sync.common.FileScanner
 import com.example.android_nas_sync.common.TimeUtils
 import com.example.android_nas_sync.databinding.ActivityMainBinding
+import com.example.android_nas_sync.models.Mapping
 import com.example.android_nas_sync.viewmodels.MappingsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == FOLDER_PICK_ACTIVITY_CODE
             && resultData?.data != null) {
             resultData.data?.also { uri ->
+
+
                 val mapping = viewModel.currentlyEditedMapping.value
                 mapping?.sourceFolder = uri.toString()
                 viewModel.currentlyEditedMapping.value = mapping
@@ -72,18 +75,25 @@ class MainActivity : AppCompatActivity() {
     private fun handleRefresh():Boolean{
         val mappings = viewModel.mappings.value
         mappings?.forEach { mapping ->
-            val result = FileScanner.refreshMapping(mapping)
-            if(result.success){
-                mapping.lastSynced = TimeUtils.unixTimestampNow()
-                viewModel.updateMapping(mapping)
-            }
-            else{
-                // TODO show error against item
-                Toast.makeText(this, "Error: ${result.errorMessage}"
-                        , Toast.LENGTH_LONG).show()
+            this.lifecycleScope.launch(Dispatchers.IO){
+                refreshMapping(mapping)
             }
         }
         return true
+    }
+
+    private suspend fun refreshMapping(mapping: Mapping){
+        val result = FileScanner.refreshMapping(mapping, this)
+        if(result.success){
+            mapping.lastSynced = TimeUtils.unixTimestampNowSecs()
+            mapping.error = null
+            viewModel.updateMapping(mapping)
+        }
+        else{
+            mapping.error = result.errorMessage
+            viewModel.updateMapping(mapping)
+            Toast.makeText(this, "Error syncing", Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

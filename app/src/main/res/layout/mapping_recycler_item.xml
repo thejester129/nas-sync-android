@@ -15,7 +15,7 @@
             android:textSize="18dp"
             android:ellipsize="middle"
             android:maxLines="1"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="40dp"
         />
 
         <TextView
@@ -25,6 +25,7 @@
             android:layout_below="@id/mapping_recycler_item_source"
             android:layout_marginTop="12dp"
             android:layout_marginLeft="12dp"
+            android:layout_marginRight="40dp"
             android:textSize="18dp"
             android:ellipsize="end"
             android:maxLines="1"
@@ -47,6 +48,7 @@
             android:layout_marginTop="12dp"
             android:layout_below="@id/mapping_recycler_item_destination_ip"
             android:layout_marginLeft="12dp"
+            android:layout_marginRight="40dp"
             android:textSize="18dp"
         />
 

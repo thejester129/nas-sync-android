@@ -15,7 +15,7 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val source = itemView.findViewById<TextView>(R.id.mapping_recycler_item_source)!!
         val destination = itemView.findViewById<TextView>(R.id.mapping_recycler_item_destination_ip)!!
-        val lastSynced = itemView.findViewById<TextView>(R.id.mapping_recycler_item_last_sync)!!
+        val infoMessage = itemView.findViewById<TextView>(R.id.mapping_recycler_item_last_sync)!!
     }
 
     fun updateMappings(newMappings:List<Mapping>){
@@ -49,7 +49,12 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
         val lastSyncTime =  if (mapping.lastSynced == null)  "never"
                             else TimeUtils.unixTimestampToHoursAndMins(mapping.lastSynced!!)
         val lastSyncText = "Last synced: $lastSyncTime"
-        viewHolder.lastSynced.text = lastSyncText
+        if(mapping.error != null){
+            viewHolder.infoMessage.text = "Error: " + mapping.error
+        }
+        else{
+            viewHolder.infoMessage.text = lastSyncText
+        }
     }
 
     override fun getItemCount(): Int {

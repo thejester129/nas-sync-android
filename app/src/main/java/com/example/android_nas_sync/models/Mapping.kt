@@ -13,6 +13,7 @@ data class Mapping(
     @ColumnInfo(name = "username")var username: String = "",
     @ColumnInfo(name = "password")var password: String = "",
     @ColumnInfo(name = "last_synced")var lastSynced:Long? = null,
+    @ColumnInfo(name = "error")var error:String? = null,
     @ColumnInfo(name = "one_way")var oneWay:Boolean = true,
     @ColumnInfo(name = "share_type") var shareType: ShareType = ShareType.SMB,
     @PrimaryKey(autoGenerate = true) var id: Int? = null,
@@ -25,6 +26,7 @@ data class Mapping(
         mapping.username,
         mapping.password,
         mapping.lastSynced,
+        mapping.error,
         mapping.oneWay,
         mapping.shareType,
         mapping.id
