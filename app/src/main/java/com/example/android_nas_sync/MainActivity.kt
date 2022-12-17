@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -30,6 +31,14 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MappingsViewModel by viewModels()
     private var FOLDER_PICK_ACTIVITY_CODE = 1
     private var PERMISSION_REQUEST_READ_CODE = 2
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+            } else {
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +54,7 @@ class MainActivity : AppCompatActivity() {
 
         requestPermissionsIfNeeded()
         try{
-           applicationContext.startForegroundService(Intent(this, SyncService::class.java))
+           applicationContext.startForegroundService(Intent(baseContext, SyncService::class.java))
         }
         catch(e:Exception){
 
@@ -73,6 +82,20 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+
+//        if(SDK_INT >= 33){
+//           if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+//               != PackageManager.PERMISSION_GRANTED){
+//               val uri = Uri.parse("package:${BuildConfig.APPLICATION_ID}")
+//
+//               startActivity(
+//                   Intent(
+//                       Settings.ACTION_APP_NOTIFICATION_SETTINGS,
+//                       uri
+//                   )
+//               )
+//           }
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

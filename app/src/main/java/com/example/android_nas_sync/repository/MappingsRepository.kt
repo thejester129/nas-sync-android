@@ -2,7 +2,6 @@ package com.example.android_nas_sync.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
 import com.example.android_nas_sync.db.MappingDAO
 import com.example.android_nas_sync.db.MappingDatabase
 import com.example.android_nas_sync.io.DeviceFileReader
@@ -14,12 +13,15 @@ import com.example.android_nas_sync.models.SyncingException
 import com.example.android_nas_sync.utils.TimeUtils
 import com.hierynomus.smbj.share.DiskShare
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MappingsRepository(private val database:MappingDatabase, private val context: Context) {
     private val dao:MappingDAO = database.mappingDao()
-    val mappings:LiveData<List<Mapping>> = dao.getAll()
+    val liveMappings:LiveData<List<Mapping>> = dao.getAllLive()
+
+    fun getMappings():List<Mapping>{
+        return dao.getAll()
+    }
 
     suspend fun insert(mapping: Mapping) {
         return withContext(Dispatchers.IO){
@@ -80,18 +82,19 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
             }
         }
 
-        updateMappingAfterSync(mapping, filesAdded)
+        updateMappingAfterSync(mapping, filesAdded, errorMessage)
 
         smbShareConnector?.closeConnection()
 
         return SyncResult(filesAdded, filesFailedToAdd, errorMessage)
     }
 
-    private suspend fun updateMappingAfterSync(mapping: Mapping, filesAdded:Int){
+    private suspend fun updateMappingAfterSync(mapping: Mapping, filesAdded:Int, error:String?){
         // TODO if deleted then synced again counts the same item twice
         // probs need to keep a list of items synced.. yuk
         mapping.filesSynced = mapping.filesSynced + filesAdded
         mapping.lastSynced = TimeUtils.unixTimestampNowSecs()
+        mapping.error = error
         update(mapping)
     }
 

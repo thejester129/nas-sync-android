@@ -4,9 +4,6 @@ import java.util.*
 
 class TimeUtils {
     companion object {
-        fun unixTimestampToFormatted(timestamp:Double){
-        }
-
         fun unixTimestampToHoursAndMins(timestampSecs:Long):String{
             val date = Date(timestampSecs * 1000)
             val now = Date()

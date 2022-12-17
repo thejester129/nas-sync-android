@@ -7,7 +7,10 @@ import com.example.android_nas_sync.models.Mapping
 @Dao
 interface MappingDAO {
     @Query("SELECT * FROM mapping")
-    fun getAll(): LiveData<List<Mapping>>
+    fun getAllLive(): LiveData<List<Mapping>>
+
+    @Query("SELECT * FROM mapping")
+    fun getAll(): List<Mapping>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(mapping: Mapping)

@@ -5,28 +5,18 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
-import com.example.android_nas_sync.io.DeviceFileReader
-import com.example.android_nas_sync.io.SmbShareConnector
-import com.example.android_nas_sync.io.SmbFileWriter
-import com.example.android_nas_sync.utils.TimeUtils
 import com.example.android_nas_sync.db.MappingDatabase
 import com.example.android_nas_sync.models.Mapping
-import com.example.android_nas_sync.models.SyncingException
 import com.example.android_nas_sync.repository.MappingsRepository
-import com.hierynomus.smbj.share.DiskShare
 import kotlinx.coroutines.launch
 
 class MappingsViewModel(application: Application) : AndroidViewModel(application) {
     private val context = application
-    private val db = Room.databaseBuilder(
-        application.applicationContext,
-        MappingDatabase::class.java, "mappings"
-    ).build()
+    private val db = MappingDatabase.getInstance(context)
 
     private val repository:MappingsRepository = MappingsRepository(db, context)
 
-    val mappings: LiveData<List<Mapping>> = repository.mappings
+    val mappings: LiveData<List<Mapping>> = repository.liveMappings
     val unseenSnackMessages = MutableLiveData<MutableList<String>>()
     val unseenNotifications = MutableLiveData<MutableList<String>>()
     var currentlyEditedMapping:MutableLiveData<Mapping> = MutableLiveData()
