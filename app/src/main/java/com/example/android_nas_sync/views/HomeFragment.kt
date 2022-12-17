@@ -15,8 +15,8 @@ import com.example.android_nas_sync.R
 import com.example.android_nas_sync.databinding.FragmentHomeBinding
 import com.example.android_nas_sync.models.Mapping
 import com.example.android_nas_sync.viewmodels.MappingsViewModel
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -40,7 +40,7 @@ class HomeFragment : Fragment() {
 
         initRecycler(view)
         initAddButton(view)
-        initObservers()
+        initObservers(view)
 
         return binding.root
     }
@@ -61,21 +61,17 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun initObservers(){
+    private fun initObservers(view:View){
         viewModel.mappings.observe(viewLifecycleOwner) { mappings ->
             mappingAdapter.updateMappings(mappings)
         }
-        viewModel.unseenToastMessages.observe(viewLifecycleOwner){messages ->
-            messages.forEach { message ->
-                lifecycleScope.launch(Dispatchers.Main){
-                    Toast.makeText(
-                        requireActivity().applicationContext,
-                        message,
-                        Toast.LENGTH_LONG
-                    ).show()
+        viewModel.unseenSnackMessages.observe(viewLifecycleOwner){ messages ->
+            if(messages.isNotEmpty()){
+                messages.forEach { message ->
+                    Snackbar.make(view, message, Snackbar.LENGTH_LONG).show()
                 }
+                viewModel.unseenSnackMessages.value = mutableListOf()
             }
-            viewModel.unseenToastMessages.value = mutableListOf()
         }
     }
 
