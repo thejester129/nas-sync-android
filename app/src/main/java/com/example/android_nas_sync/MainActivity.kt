@@ -19,6 +19,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.android_nas_sync.databinding.ActivityMainBinding
+import com.example.android_nas_sync.service.SyncService
 import com.example.android_nas_sync.viewmodels.MappingsViewModel
 
 
@@ -43,7 +44,14 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         requestPermissionsIfNeeded()
+        try{
+           applicationContext.startForegroundService(Intent(this, SyncService::class.java))
+        }
+        catch(e:Exception){
+
+        }
     }
+
 
     private fun requestPermissionsIfNeeded(){
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
