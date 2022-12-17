@@ -1,17 +1,13 @@
-package com.example.android_nas_sync.common
+package com.example.android_nas_sync.io
 
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.toRawFile
-import com.example.android_nas_sync.models.Mapping
-import com.example.android_nas_sync.models.ScanResult
 import com.example.android_nas_sync.models.SyncingException
-import com.hierynomus.smbj.share.DiskShare
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.*
 import java.util.stream.Collectors
 
 

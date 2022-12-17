@@ -13,6 +13,7 @@ data class Mapping(
     @ColumnInfo(name = "username")var username: String = "",// TODO guest
     @ColumnInfo(name = "password")var password: String = "",
     @ColumnInfo(name = "files_synced")var filesSynced:Int = 0,
+    @ColumnInfo(name = "currently_syncing")var currentlySyncing:Boolean = false,
     @ColumnInfo(name = "last_synced")var lastSynced:Long? = null,
     @ColumnInfo(name = "error")var error:String? = null,
     @ColumnInfo(name = "one_way")var oneWay:Boolean = true,
@@ -27,6 +28,7 @@ data class Mapping(
         mapping.username,
         mapping.password,
         mapping.filesSynced,
+        mapping.currentlySyncing,
         mapping.lastSynced,
         mapping.error,
         mapping.oneWay,

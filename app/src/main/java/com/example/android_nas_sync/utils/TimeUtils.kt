@@ -1,9 +1,6 @@
-package com.example.android_nas_sync.common
+package com.example.android_nas_sync.utils
 
-import java.lang.Math.floor
-import java.lang.Math.round
 import java.util.*
-import kotlin.math.roundToInt
 
 class TimeUtils {
     companion object {
@@ -15,9 +12,9 @@ class TimeUtils {
             val now = Date()
             val diffMs = now.time - date.time
             val diffMins = diffMs / 1000 / 60
-            val hours = kotlin.math.floor(diffMins / 60.0 )
+            val hours = kotlin.math.floor(diffMins / 60.0 ).toInt()
             val hoursAsMins = hours * 60
-            val mins = diffMins - hoursAsMins
+            val mins = (diffMins - hoursAsMins).toInt()
             return if (hours > 0)  "$hours hours $mins mins"
                    else "$diffMins mins"
         }

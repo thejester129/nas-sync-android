@@ -1,4 +1,4 @@
-package com.example.android_nas_sync.common
+package com.example.android_nas_sync.io
 
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes

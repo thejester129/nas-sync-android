@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android_nas_sync.R
-import com.example.android_nas_sync.common.TimeUtils
+import com.example.android_nas_sync.utils.TimeUtils
 import com.example.android_nas_sync.models.Mapping
 
 class MappingRecyclerAdapter( private var mappings:List<Mapping>,
@@ -17,6 +17,8 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
         val destination = itemView.findViewById<TextView>(R.id.mapping_recycler_item_destination_ip)!!
         val filesSynced = itemView.findViewById<TextView>(R.id.mapping_recycler_item_files_synced)!!
         val infoMessage = itemView.findViewById<TextView>(R.id.mapping_recycler_item_last_sync)!!
+        val chevron = itemView.findViewById<View>(R.id.mapping_recycler_chevron)!!
+        val loading = itemView.findViewById<View>(R.id.mapping_recycler_loading)!!
     }
 
     fun updateMappings(newMappings:List<Mapping>){
@@ -58,6 +60,15 @@ class MappingRecyclerAdapter( private var mappings:List<Mapping>,
         }
         else{
             viewHolder.infoMessage.text = lastSyncText
+        }
+
+        if(mapping.currentlySyncing){
+            viewHolder.chevron.visibility = View.INVISIBLE
+            viewHolder.loading.visibility = View.VISIBLE
+        }
+        else{
+            viewHolder.chevron.visibility = View.VISIBLE
+            viewHolder.loading.visibility = View.INVISIBLE
         }
     }
 

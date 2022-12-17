@@ -42,6 +42,10 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        requestPermissionsIfNeeded()
+    }
+
+    private fun requestPermissionsIfNeeded(){
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST_READ_CODE)
@@ -61,21 +65,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            PERMISSION_REQUEST_READ_CODE -> if (grantResults.size > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED
-            ) {
-            } else {
-            }
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

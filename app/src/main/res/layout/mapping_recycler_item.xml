@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/teal_200"
     android:layout_width="match_parent"
     android:layout_height="165dp"
@@ -34,6 +35,7 @@
         />
 
         <ImageButton
+            android:id="@+id/mapping_recycler_chevron"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentTop="true"
@@ -42,6 +44,17 @@
             android:src="@drawable/arrow_right"
             android:background="@android:color/transparent"
             android:clickable="false"
+            app:tint="@color/white" />
+
+        <ProgressBar
+            android:id="@+id/mapping_recycler_loading"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:foregroundTint="@color/white"
+            android:indeterminateTint="@color/white"
                 />
 
         <TextView

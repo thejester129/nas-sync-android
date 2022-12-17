@@ -1,4 +1,4 @@
-package com.example.android_nas_sync.common
+package com.example.android_nas_sync.io
 
 import com.example.android_nas_sync.models.SyncingException
 import com.hierynomus.smbj.SMBClient
@@ -9,7 +9,7 @@ import com.hierynomus.smbj.share.DiskShare
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class ShareConnector() {
+class SmbShareConnector() {
         private val client:SMBClient? = null
 
         suspend fun connectToSmbShare(ipAddress:String,shareName:String, username:String, password:String):DiskShare{

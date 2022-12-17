@@ -6,13 +6,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
-import com.example.android_nas_sync.common.DeviceFileReader
-import com.example.android_nas_sync.common.ShareConnector
-import com.example.android_nas_sync.common.SmbFileWriter
-import com.example.android_nas_sync.common.TimeUtils
+import com.example.android_nas_sync.io.DeviceFileReader
+import com.example.android_nas_sync.io.SmbShareConnector
+import com.example.android_nas_sync.io.SmbFileWriter
+import com.example.android_nas_sync.utils.TimeUtils
 import com.example.android_nas_sync.db.MappingDatabase
 import com.example.android_nas_sync.models.Mapping
 import com.example.android_nas_sync.models.SyncingException
+import com.example.android_nas_sync.repository.MappingsRepository
 import com.hierynomus.smbj.share.DiskShare
 import kotlinx.coroutines.launch
 
@@ -23,25 +24,19 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
         MappingDatabase::class.java, "mappings"
     ).build()
 
-    private val mappingDao = db.mappingDao()
+    private val repository:MappingsRepository = MappingsRepository(db, context)
 
-    val mappings: LiveData<List<Mapping>> = mappingDao.getAll()
+    val mappings: LiveData<List<Mapping>> = repository.mappings
     val unseenSnackMessages = MutableLiveData<MutableList<String>>()
     val unseenNotifications = MutableLiveData<MutableList<String>>()
     var currentlyEditedMapping:MutableLiveData<Mapping> = MutableLiveData()
     var canDeleteCurrentlyEdited = false
 
-    fun updateMapping(mapping: Mapping) {
-        viewModelScope.launch {
-            mappingDao.update(mapping)
-        }
-    }
-
     fun updateCurrentEdited() {
         viewModelScope.launch {
             val mapping = currentlyEditedMapping.value
             if (mapping != null) {
-                mappingDao.insert(mapping)
+                repository.insert(mapping)
             }
         }
     }
@@ -50,84 +45,47 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val mapping = currentlyEditedMapping.value
             if(mapping != null){
-                mappingDao.delete(mapping)
+                repository.delete(mapping)
             }
         }
     }
 
     fun syncAllMappings(){
         viewModelScope.launch {
-            mappings.value?.forEach { mapping ->
-                run{
-                    try {
-                        syncMapping(mapping)
-                        mapping.error = null
-                    } catch (e: Exception) {
-                        if (e is SyncingException) {
-                            mapping.error = e.message
-                        } else {
-                            mapping.error = "Failed to sync"
-                        }
-                        addSnackMessage("${mapping.destinationShare}/${mapping.destinationPath} failed to sync")
-                    }
-                    updateMapping(mapping)
+            mappings.value?.forEach{mapping ->
+                repository.update(mapping.apply{
+                    this.currentlySyncing = true
+                })
+
+                val result = repository.syncMapping(mapping)
+
+                if(result.filedAdded > 0){
+                    addSnackMessage("${result.filedAdded} files added")
                 }
+                if(result.filesFailedToAdd > 0){
+                    addSnackMessage("${result.filesFailedToAdd} files failed to add")
+                }
+                if(result.filedAdded == 0 && result.filesFailedToAdd == 0 && result.errorMessage == null){
+                   addSnackMessage("No new files found")
+                }
+
+                repository.update(mapping.apply{
+                    this.currentlySyncing = false
+                })
             }
         }
     }
 
-    private suspend fun syncMapping(mapping: Mapping){
-        val ipAddress = mapping.serverIp!!
-        val shareName = mapping.destinationShare!!
-        val sharePath = mapping.destinationPath
-        val username = mapping.username
-        val password = mapping.password
-        val contentUri = mapping.sourceFolder!!
-
-        var filesAdded = 0
-        var share: DiskShare? = null
-        val shareConnector = ShareConnector()
-            share = shareConnector.connectToSmbShare(ipAddress, shareName, username, password)
-        val fileWriter = SmbFileWriter(share)
-
-        val phoneFiles = DeviceFileReader.readFilesAtContentUri(contentUri, context)
-
-        val writeExceptions = mutableListOf<Exception>()//TODO do something with these?
-        phoneFiles.forEach { file -> run{
-            if(!fileWriter.fileExistsInShare(sharePath, file.name)){
-                try{
-                    fileWriter.writeFileToShare(file,sharePath )
-                    filesAdded++
-                }
-                catch (e:Exception){
-                    addSnackMessage("${file.name} failed to add")
-                    writeExceptions.add(e)
-                }
-            }
-        } }
-        // TODO if deleted then synced again counts the same item twice
-        // probs need to keep a list of items synced.. yuk
-        mapping.filesSynced = mapping.filesSynced + filesAdded
-        mapping.lastSynced = TimeUtils.unixTimestampNowSecs()
-        updateMapping(mapping)
-
-        addSnackMessage("$filesAdded files added")
-
-        shareConnector.closeConnection()
-    }
-
     private fun addSnackMessage(message:String){
-        val list = unseenSnackMessages.value ?: mutableListOf<String>()
+        val list = unseenSnackMessages.value ?: mutableListOf()
         list.add(message)
         unseenSnackMessages.postValue(list)
     }
 
     private fun addNotification(message:String){
-        val list = unseenNotifications.value ?: mutableListOf<String>()
+        val list = unseenNotifications.value ?: mutableListOf()
         list.add(message)
         unseenNotifications.postValue(list)
     }
 
-    init{
-    }
 }

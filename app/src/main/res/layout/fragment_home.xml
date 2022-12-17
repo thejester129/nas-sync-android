@@ -14,12 +14,14 @@
     />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:id="@+id/mapping_add_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:layout_alignParentRight="true"
-    android:layout_marginEnd="@dimen/fab_margin"
-    android:layout_marginBottom="16dp"
-    app:srcCompat="@android:drawable/ic_input_add" />
+        android:id="@+id/mapping_add_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="16dp"
+        android:foregroundTint="@color/white"
+        android:tint="@color/white"
+        app:srcCompat="@android:drawable/ic_input_add" />
 </RelativeLayout>
