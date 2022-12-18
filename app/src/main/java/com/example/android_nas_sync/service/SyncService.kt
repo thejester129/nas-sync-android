@@ -68,8 +68,8 @@ class SyncService(): Service()  {
                 }
             }
         }
-        val period:Long = 1000 * 20//1000 * 60 * 60 * 24 // 24 hours
-        timer.scheduleAtFixedRate(task,0,period)
+        val period:Long = 1000 * 60 * 60 * 24 // 24 hours
+        timer.scheduleAtFixedRate(task,period,period)
     }
 
     private fun showNotification(title:String, message:String){
