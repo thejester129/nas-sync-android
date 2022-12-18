@@ -2,11 +2,13 @@ package com.example.android_nas_sync.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.android_nas_sync.db.MappingDAO
 import com.example.android_nas_sync.db.MappingDatabase
 import com.example.android_nas_sync.io.DeviceFileReader
 import com.example.android_nas_sync.io.SmbFileWriter
 import com.example.android_nas_sync.io.SmbShareConnector
+import com.example.android_nas_sync.models.CurrentlySyncingInfo
 import com.example.android_nas_sync.models.Mapping
 import com.example.android_nas_sync.models.SyncResult
 import com.example.android_nas_sync.models.SyncingException
@@ -18,6 +20,7 @@ import kotlinx.coroutines.withContext
 class MappingsRepository(private val database:MappingDatabase, private val context: Context) {
     private val dao:MappingDAO = database.mappingDao()
     val liveMappings:LiveData<List<Mapping>> = dao.getAllLive()
+    val currentlySyncingInfo:MutableLiveData<CurrentlySyncingInfo> = MutableLiveData()
 
     fun getMappings():List<Mapping>{
         return dao.getAll()
@@ -55,6 +58,10 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
         var smbShareConnector:SmbShareConnector? = null
         var errorMessage:String? = null
 
+        update(mapping.apply{
+            this.currentlySyncing = true
+        })
+
         try{
             smbShareConnector = SmbShareConnector()
             share = smbShareConnector.connectToSmbShare(ipAddress, shareName, username, password)
@@ -62,9 +69,10 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
 
             val phoneFiles = DeviceFileReader.readFilesAtContentUri(contentUri, context)
 
-            phoneFiles.forEach { file -> run{
+            phoneFiles.forEachIndexed { index, file -> run{
                 if(!fileWriter.fileExistsInShare(sharePath, file.name)){
                     try{
+                        currentlySyncingInfo.postValue(CurrentlySyncingInfo(index + 1,phoneFiles.size))
                         fileWriter.writeFileToShare(file,sharePath )
                         filesAdded++
                     }
@@ -84,6 +92,8 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
 
         updateMappingAfterSync(mapping, filesAdded, errorMessage)
 
+        currentlySyncingInfo.postValue(CurrentlySyncingInfo(0,0))
+
         smbShareConnector?.closeConnection()
 
         return SyncResult(filesAdded, filesFailedToAdd, errorMessage)
@@ -95,6 +105,7 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
         mapping.filesSynced = mapping.filesSynced + filesAdded
         mapping.lastSynced = TimeUtils.unixTimestampNowSecs()
         mapping.error = error
+        mapping.currentlySyncing = false
         update(mapping)
     }
 

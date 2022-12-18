@@ -10,6 +10,7 @@ import com.example.android_nas_sync.R
 import com.example.android_nas_sync.db.MappingDatabase
 import com.example.android_nas_sync.repository.MappingsRepository
 import com.example.android_nas_sync.utils.TimeUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
@@ -17,15 +18,17 @@ import java.util.*
 class SyncService(): Service()  {
     private val NOTIFICATION_CHANNEL_ID = "129"
     private val NOTIFICATION_FOREGROUND_ID = 129
-    private var notificationId = 1
+    private val NOTIFICATION_UPDATE_ID = 130
     private lateinit var db:MappingDatabase
     private lateinit var repository:MappingsRepository
+    private var isSyncing = false
 
     override fun onCreate() {
         HandlerThread("ServiceStartArguments", Process.THREAD_PRIORITY_BACKGROUND).apply {
             db = MappingDatabase.getInstance(applicationContext)
             repository = MappingsRepository(db, applicationContext)
             startSyncing()
+            observeCurrentlySyncingStatus()
         }
     }
 
@@ -34,45 +37,68 @@ class SyncService(): Service()  {
         val task = object: TimerTask() {
             override fun run() {
                 runBlocking {
-                    val mappings = repository.getMappings()
-                    mappings.forEach{mapping ->
-                        repository.update(mapping.apply{
-                            this.currentlySyncing = true
-                        })
-
-                        val result = repository.syncMapping(mapping)
-
-                        if(result.errorMessage == null){
-                            var resultMessage = ""
-
-                            if(result.filedAdded > 0 && result.filesFailedToAdd == 0){
-                                resultMessage = "${result.filedAdded} files added"
-                            }
-                            if(result.filedAdded > 0 && result.filesFailedToAdd > 0){
-                                resultMessage = "${result.filedAdded} files added, ${result.filesFailedToAdd} failed to add"
-                            }
-                            if(result.filedAdded == 0 && result.filesFailedToAdd == 0 && result.errorMessage == null){
-                                resultMessage = "No new files found"
-                            }
-                            showNotification("Syncing Complete!",resultMessage)
-                            updateForegroundNotification("Last Synced: ${TimeUtils.unixTimestampToHoursAndMins(TimeUtils.unixTimestampNowSecs())}")
-                        }
-                        else{
-                            showNotification("Syncing Error",result.errorMessage)
-                        }
-
-                        repository.update(mapping.apply{
-                            this.currentlySyncing = false
-                        })
+                    if(isSyncing){
+                        return@runBlocking
                     }
+                    isSyncing = true
+                    updateForegroundNotification("Syncing now")
+                    var attemptsLeft = 10
+                    while(attemptsLeft > 0) {
+                        val success = syncMappings()
+                        if(success){
+                            isSyncing = false
+                            return@runBlocking
+                        }
+                        delay(1000 * 60 * 5)
+                        attemptsLeft--
+                    }
+                    isSyncing = false
+                    updateForegroundNotification("Failed to sync recently")
                 }
             }
         }
         val period:Long = 1000 * 60 * 60 * 24 // 24 hours
-        timer.scheduleAtFixedRate(task,period,period)
+        timer.scheduleAtFixedRate(task,0,period)
     }
 
-    private fun showNotification(title:String, message:String){
+    private suspend fun syncMappings():Boolean{
+        val mappings = repository.getMappings()
+        val results = mappings.map{mapping ->
+            repository.update(mapping.apply{
+                this.currentlySyncing = true
+            })
+
+            val result = repository.syncMapping(mapping)
+
+            if(result.errorMessage == null){
+                var resultMessage = ""
+
+                if(result.filedAdded > 0 && result.filesFailedToAdd == 0){
+                    resultMessage = "${result.filedAdded} files added"
+                }
+                if(result.filedAdded > 0 && result.filesFailedToAdd > 0){
+                    resultMessage = "${result.filedAdded} files added, ${result.filesFailedToAdd} failed to add"
+                }
+                if(result.filedAdded == 0 && result.filesFailedToAdd == 0 && result.errorMessage == null){
+                    resultMessage = "No new files found"
+                }
+                showStatusUpdateNotification("Syncing Complete!",resultMessage)
+                updateForegroundNotification("Last Synced: ${TimeUtils.unixTimestampToHoursAndMins(TimeUtils.unixTimestampNowSecs())}")
+            }
+            else{
+                showStatusUpdateNotification("Syncing Error",result.errorMessage)
+            }
+
+            repository.update(mapping.apply{
+                this.currentlySyncing = false
+            })
+            return@map result
+        }
+         val anyErrors = results.any { result -> result.errorMessage != null }
+         return !anyErrors
+    }
+
+    private fun showStatusUpdateNotification(title:String, message:String){
         val builder = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(message)
@@ -80,9 +106,25 @@ class SyncService(): Service()  {
         builder.build()
 
         with(NotificationManagerCompat.from(this)) {
-            notify(notificationId, builder.build())
+            notify(NOTIFICATION_UPDATE_ID, builder.build())
         }
-        notificationId++
+    }
+
+    private fun observeCurrentlySyncingStatus(){
+        repository.currentlySyncingInfo.observeForever { info ->
+            if(!(info.currentItem < info.totalItems)){
+                return@observeForever
+            }
+            val builder = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setContentTitle("${info.currentItem} out of ${info.totalItems} files added")
+                .setProgress(info.totalItems,info.currentItem, false)
+                .setSmallIcon(R.drawable.arrow_right)
+            builder.build()
+
+            with(NotificationManagerCompat.from(this)) {
+                notify(NOTIFICATION_UPDATE_ID, builder.build())
+            }
+        }
     }
 
     private fun updateForegroundNotification(message:String) {
@@ -125,7 +167,7 @@ class SyncService(): Service()  {
         val channel1 = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
             "Syncing Notifications",
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_DEFAULT
         )
         channel1.description = "Sends notifications about syncing results"
         channel1.enableLights(true)
@@ -137,5 +179,10 @@ class SyncService(): Service()  {
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
+    }
+
+    override fun onDestroy() {
+        // TODO be nice and cleanup yo mess
+        super.onDestroy()
     }
 }

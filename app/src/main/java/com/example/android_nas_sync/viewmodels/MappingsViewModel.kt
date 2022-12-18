@@ -41,12 +41,9 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun syncAllMappings(){
+        // TODO this should probably just send a message to sync service instead
         viewModelScope.launch {
             mappings.value?.forEach{mapping ->
-                repository.update(mapping.apply{
-                    this.currentlySyncing = true
-                })
-
                 val result = repository.syncMapping(mapping)
 
                 if(result.filedAdded > 0){
@@ -58,10 +55,6 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
                 if(result.filedAdded == 0 && result.filesFailedToAdd == 0 && result.errorMessage == null){
                    addSnackMessage("No new files found")
                 }
-
-                repository.update(mapping.apply{
-                    this.currentlySyncing = false
-                })
             }
         }
     }
