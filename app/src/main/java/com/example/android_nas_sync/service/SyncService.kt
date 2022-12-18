@@ -16,7 +16,8 @@ import java.util.*
 
 
 class SyncService(): Service()  {
-    private val NOTIFICATION_CHANNEL_ID = "129"
+    private val NOTIFICATION_FOREGROUND_CHANNEL_ID = "129"
+    private val NOTIFICATION_UPDATES_CHANNEL_ID = "130"
     private val NOTIFICATION_FOREGROUND_ID = 129
     private val NOTIFICATION_UPDATE_ID = 130
     private lateinit var db:MappingDatabase
@@ -98,24 +99,14 @@ class SyncService(): Service()  {
          return !anyErrors
     }
 
-    private fun showStatusUpdateNotification(title:String, message:String){
-        val builder = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setSmallIcon(R.drawable.arrow_right)
-        builder.build()
 
-        with(NotificationManagerCompat.from(this)) {
-            notify(NOTIFICATION_UPDATE_ID, builder.build())
-        }
-    }
 
     private fun observeCurrentlySyncingStatus(){
         repository.currentlySyncingInfo.observeForever { info ->
             if(!(info.currentItem < info.totalItems)){
                 return@observeForever
             }
-            val builder = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+            val builder = Notification.Builder(this, NOTIFICATION_UPDATES_CHANNEL_ID)
                 .setContentTitle("${info.currentItem} out of ${info.totalItems} files added")
                 .setProgress(info.totalItems,info.currentItem, false)
                 .setSmallIcon(R.drawable.arrow_right)
@@ -127,16 +118,6 @@ class SyncService(): Service()  {
         }
     }
 
-    private fun updateForegroundNotification(message:String) {
-        val builder = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setContentText(message)
-            .setSmallIcon(R.drawable.arrow_right)
-        builder.build()
-
-        with(NotificationManagerCompat.from(this)) {
-            notify(NOTIFICATION_FOREGROUND_ID, builder.build())
-        }
-    }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         createNotificationChannel()
@@ -147,7 +128,7 @@ class SyncService(): Service()  {
                     PendingIntent.FLAG_IMMUTABLE)
             }
 
-        val builder = Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+        val builder = Notification.Builder(this, NOTIFICATION_FOREGROUND_CHANNEL_ID)
             .setContentTitle("Nas Sync Running")
             .setContentText("Last Synced: Never")
             .setSmallIcon(R.drawable.arrow_right)
@@ -164,17 +145,45 @@ class SyncService(): Service()  {
     }
 
     private fun createNotificationChannel(){
-        val channel1 = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            "Syncing Notifications",
+        val channelForeground = NotificationChannel(
+            NOTIFICATION_FOREGROUND_CHANNEL_ID,
+            "Foreground Notifications Channel",
             NotificationManager.IMPORTANCE_DEFAULT
         )
-        channel1.description = "Sends notifications about syncing results"
-        channel1.enableLights(true)
-        channel1.lightColor = Color.BLACK
+        channelForeground.description = "Notification for foreground service"
+
+        val channelUpdates = NotificationChannel(
+            NOTIFICATION_UPDATES_CHANNEL_ID,
+            "Syncing Notifications Channel",
+            NotificationManager.IMPORTANCE_LOW
+        )
+        channelUpdates.description = "Notification for syncing updates"
 
         val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(channel1)
+        manager.createNotificationChannel(channelUpdates)
+    }
+
+    private fun updateForegroundNotification(message:String) {
+        val builder = Notification.Builder(this, NOTIFICATION_FOREGROUND_CHANNEL_ID)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.arrow_right)
+        builder.build()
+
+        with(NotificationManagerCompat.from(this)) {
+            notify(NOTIFICATION_FOREGROUND_ID, builder.build())
+        }
+    }
+
+    private fun showStatusUpdateNotification(title:String, message:String){
+        val builder = Notification.Builder(this, NOTIFICATION_UPDATES_CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.arrow_right)
+        builder.build()
+
+        with(NotificationManagerCompat.from(this)) {
+            notify(NOTIFICATION_UPDATE_ID, builder.build())
+        }
     }
 
     override fun onBind(p0: Intent?): IBinder? {
