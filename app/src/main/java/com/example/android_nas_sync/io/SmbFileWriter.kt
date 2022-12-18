@@ -5,6 +5,7 @@ import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2CreateOptions
 import com.hierynomus.mssmb2.SMB2ShareAccess
+import com.hierynomus.smbj.io.FileByteChunkProvider
 import com.hierynomus.smbj.share.DiskShare
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,7 +24,7 @@ class SmbFileWriter(private val diskShare: DiskShare) {
     @Throws(IOException::class)
     suspend fun writeFileToShare(file: File, destinationPath:String) {
         return withContext(Dispatchers.IO){
-            val fileContent = Files.readAllBytes(file.toPath())
+            val fileChunkProvider = FileByteChunkProvider(file)
 
             val fileAttributes: MutableSet<FileAttributes> = HashSet()
             fileAttributes.add(FileAttributes.FILE_ATTRIBUTE_NORMAL)
@@ -38,7 +39,9 @@ class SmbFileWriter(private val diskShare: DiskShare) {
                 SMB2CreateDisposition.FILE_CREATE, createOptions
             )
             println("Writing file: " + file.name)
-            f.write(fileContent, 0)
+            f.write(fileChunkProvider)
+            f.close()
+            fileChunkProvider.close()
         }
 
     }
