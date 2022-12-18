@@ -16,6 +16,7 @@ import com.example.android_nas_sync.utils.TimeUtils
 import com.hierynomus.smbj.share.DiskShare
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class MappingsRepository(private val database:MappingDatabase, private val context: Context) {
     private val dao:MappingDAO = database.mappingDao()
@@ -69,8 +70,8 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
 
             val phoneFiles = DeviceFileReader.readFilesAtContentUri(contentUri, context)
 
-            phoneFiles.forEachIndexed { index, file -> run{
-                if(!fileWriter.fileExistsInShare(sharePath, file.name)){
+            val phoneFilesToAdd = phoneFiles.filter { file -> shouldAddPhoneFile(file, fileWriter, sharePath) }
+            phoneFilesToAdd.forEachIndexed { index, file -> run{
                     try{
                         currentlySyncingInfo.postValue(CurrentlySyncingInfo(index + 1,phoneFiles.size))
                         fileWriter.writeFileToShare(file,sharePath )
@@ -79,7 +80,6 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
                     catch (e:Exception){
                         filesFailedToAdd++
                     }
-                }
             } }
         }
         catch (e:Exception){
@@ -97,6 +97,12 @@ class MappingsRepository(private val database:MappingDatabase, private val conte
         smbShareConnector?.closeConnection()
 
         return SyncResult(filesAdded, filesFailedToAdd, errorMessage)
+    }
+
+    private suspend fun shouldAddPhoneFile(file: File, fileWriter: SmbFileWriter, sharePath:String):Boolean{
+        return !file.name.startsWith(".") // hidden/trash files
+                && !fileWriter.fileExistsInShare(sharePath, file.name)
+
     }
 
     private suspend fun updateMappingAfterSync(mapping: Mapping, filesAdded:Int, error:String?){
