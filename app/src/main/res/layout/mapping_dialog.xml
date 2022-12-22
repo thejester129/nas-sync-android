@@ -14,7 +14,7 @@
     <TextView
         android:id="@+id/mapping_dialog_source_folder"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="80dp"
         android:layout_marginTop="50dp"
         android:layout_marginRight="100dp"
         android:text="@{viewModel.currentlyEditedMapping.sourceFolder}"
@@ -22,7 +22,7 @@
     <Button
         android:id="@+id/mapping_dialog_file_picker_button"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="80dp"
         android:text="Choose"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
