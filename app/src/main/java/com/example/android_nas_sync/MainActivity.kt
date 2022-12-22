@@ -1,5 +1,7 @@
 package com.example.android_nas_sync
 
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -53,11 +55,14 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         requestPermissionsIfNeeded()
-        try{
-           applicationContext.startForegroundService(Intent(baseContext, SyncService::class.java))
-        }
-        catch(e:Exception){
 
+        if(!isServiceRunningInForeground(SyncService::class.java)){
+            try{
+                applicationContext.startForegroundService(Intent(baseContext, SyncService::class.java))
+            }
+            catch(e:Exception){
+                viewModel.addSnackMessage("Service failed to start")
+            }
         }
     }
 
@@ -142,5 +147,17 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    private fun isServiceRunningInForeground(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                if (service.foreground) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 }

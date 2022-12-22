@@ -59,7 +59,7 @@ class MappingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun addSnackMessage(message:String){
+    fun addSnackMessage(message:String){
         val list = unseenSnackMessages.value ?: mutableListOf()
         list.add(message)
         unseenSnackMessages.postValue(list)
