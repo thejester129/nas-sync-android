@@ -1,5 +1,6 @@
 package com.example.android_nas_sync.utils
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 class TimeUtils {
@@ -15,6 +16,13 @@ class TimeUtils {
             return if (hours > 0)  "$hours hours $mins mins"
                    else "$diffMins mins"
         }
+
+        fun unixTimestampToFormattedDate(timestampSecs: Long):String{
+            val date = Date(timestampSecs * 1000)
+            val dt = SimpleDateFormat("HH:mm dd MMM yyyy")
+            return dt.format(date)
+        }
+
         fun unixTimestampNowSecs():Long{
             return System.currentTimeMillis() / 1000
         }

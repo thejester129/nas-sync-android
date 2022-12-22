@@ -84,7 +84,7 @@ class SyncService(): Service()  {
                     resultMessage = "No new files found"
                 }
                 showStatusUpdateNotification("Syncing Complete!",resultMessage)
-                updateForegroundNotification("Last Synced: ${TimeUtils.unixTimestampToHoursAndMins(TimeUtils.unixTimestampNowSecs())}")
+                updateForegroundNotification("Last Synced: ${TimeUtils.unixTimestampToFormattedDate(TimeUtils.unixTimestampNowSecs())}")
             }
             else{
                 showStatusUpdateNotification("Syncing Error",result.errorMessage)
