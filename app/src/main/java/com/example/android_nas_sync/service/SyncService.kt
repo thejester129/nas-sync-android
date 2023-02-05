@@ -138,8 +138,15 @@ class SyncService(): Service()  {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
         }
+        val notification = builder.build()
+        try{
 
-        startForeground(NOTIFICATION_FOREGROUND_ID, builder.build())
+            startForeground(NOTIFICATION_FOREGROUND_ID, notification)
+        }
+        catch (e:Exception){
+
+        }
+
 
         return START_STICKY
     }
@@ -160,6 +167,8 @@ class SyncService(): Service()  {
         channelUpdates.description = "Notification for syncing updates"
 
         val manager = getSystemService(NotificationManager::class.java)
+
+        manager.createNotificationChannel(channelForeground)
         manager.createNotificationChannel(channelUpdates)
     }
 
